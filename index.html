@@ -9,30 +9,51 @@
   <script src="https://unpkg.com/aframe-event-set-component@4.2.1/dist/aframe-event-set-component.min.js"></script>
   
   <script>
-    function moji(){
-      document.getElementById("text").setAttribute("value","next scene");
-      setTimeout(tugi, 2000);
-    }
+    //参考リンク
+    // https://aframe.io/docs/1.0.0/components/sound.html
+    //https://github.com/aframevr/aframe/issues/3868
+    //https://developer.mozilla.org/ja/docs/Games/Techniques/3D_on_the_web/Building_up_a_basic_demo_with_A-Frame
+    //ここかはjava scriptの部分
     function tugi(){
       window.location.href = "https://18j5141.github.io/meiseisound4/"
+      //hrefはググってください
+      //次のシーンに移動する関数
     }
 
+          //Aframe用の概念にコンポーネントがあり、そのコンポーネントをテストという名前で登録している、書き方は連想配列的な書き方
     AFRAME.registerComponent('test', {
+
+      //initが初期化処理を書くやつ、functionは連想配列のinitに関数を渡してあげる
       init: function () {
+        
+        //thisを使うと自分自身のオブジェクトを返す、今回はデバッグログ的な感じで中身を見てる
         console.log(this);
+        
+         //htmlのthis.elとelementを共有してる的な感じ、ポインタ的な？片方が動けばもう片方も動く的な感じ。ラベル付けみたいな
         const element = this.el;
+       
+        //サウンドが読み込み終わったら
         element.addEventListener('sound-loaded', function () {
+          
+          //1秒後に再生開始
+          //elementの中にa-frameの機能でコンポーネントが入っててそれ使ってる？
           console.log('sound-loaded');
           setTimeout(function () {
             element.components.sound.playSound();
           }, 1000);
           
         });
+        
+         //elementにイベントが発生したら的な、毎フレーム確認するのではなく、第一引数のイベントが発生したら実行、イベントドリブンとかで検索したらわかる
         element.addEventListener('mouseenter', function () {
+         
+          //視線が入ったらデバッグログで中身見る
           console.log('mouseenter');
+          
+          //停止　関数そのものを渡すので関数名だけ渡せばよい、tugiにはかっこいらない
+          //グローバル変数はwindow 今回はwindow.の部分は省略可　
           element.components.sound.pauseSound();
-          document.getElementById("text").setAttribute("value","Get!");
-          setTimeout(moji, 5000);
+          setTimeout(tugi, 5000)
           
         });
       }
@@ -43,20 +64,23 @@
 
 <body>
   <a-scene>
-    <a-assets>
-      <img id="hasi" src="jougasakikaigan.jpg" preload="auto"></img>
-      <audio id="nami" src="sea_wave.mp3" preload="auto"></audio>
+    <a-assets><!--アセットの登録設定-->
+      <img id="hasi" src="jougasakikaigan.jpg" preload="auto"></img> <!--画像を読み込む-->
+      <audio id="nami" src="sea_wave.mp3" preload="auto"></audio>　<!--音を読み込む-->
     </a-assets>
     <a-camera>
+      <!--これが視線カーソルを使う設定の本体であり，<a-camera>というタグで仮想カメラ
+        （頭の向きに応じてVR空間を写す）を置き，その中に<a-cursor>というタグを書いて，
+        カメラの動き（つまり頭の動き）と一緒に動くカーソルを置いている．
+        カーソルは小さな○で表示する-->
       <a-cursor fuse="true" fuse-timeout="1000"></a-cursor> 
     </a-camera>
+
+    <!--見えない箱を設置、a-となっているのはA-frame独自のタグ、materialとかsoundはコンポーネント扱いになっているtestがjsで作ったコンポーネント-->
+    <!--コンポーネントの順番は前から読み込まれるので順番には注意、今回のtestはsound等を前提としているので一番最後に書いている-->
     <a-box id="box" rotation="0 -10 0" width="9" height="1.8" depth="20" position="10 0.5 2"
       material="opacity: 0;" sound="src: #nami; autoplay: true; loop:true;" test>
     </a-box>
-
-    <a-entity camera look-controls position="0 1.7 0">
-      <a-text id = "text" value="Find" position = "0 0 -1" scale = "0.5 0.5 0.5" align = "center" color="#00BFFF" ></a-text>
-    </a-entity>
     
     <a-sky src="#hasi" rotation="0 0 0"></a-sky>
   </a-scene>
